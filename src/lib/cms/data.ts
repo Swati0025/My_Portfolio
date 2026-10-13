@@ -1,9 +1,12 @@
-import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { cacheLife, cacheTag } from "next/cache";
 import { getSupabaseConfig, hasSupabaseConfig } from "@/lib/supabase/config";
 import type { ContentItem, ContentType, WriterProfile } from "./types";
 
-export const getPublishedContent = cache(async (type?: ContentType, limit?: number) => {
+export async function getPublishedContent(type?: ContentType, limit?: number) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("published-content");
   if (!hasSupabaseConfig()) return [] as ContentItem[];
   const { url, anonKey } = getSupabaseConfig();
   const supabase = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
@@ -20,9 +23,12 @@ export const getPublishedContent = cache(async (type?: ContentType, limit?: numb
     return [] as ContentItem[];
   }
   return (data ?? []) as ContentItem[];
-});
+}
 
-export const getPublishedContentBySlug = cache(async (type: ContentType, slug: string) => {
+export async function getPublishedContentBySlug(type: ContentType, slug: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("published-content");
   if (!hasSupabaseConfig()) return null;
   const { url, anonKey } = getSupabaseConfig();
   const supabase = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
@@ -38,9 +44,12 @@ export const getPublishedContentBySlug = cache(async (type: ContentType, slug: s
     return null;
   }
   return data as ContentItem | null;
-});
+}
 
-export const getWriterProfile = cache(async () => {
+export async function getWriterProfile() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("writer-profile");
   if (!hasSupabaseConfig()) return null;
   const { url, anonKey } = getSupabaseConfig();
   const supabase = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
@@ -54,4 +63,4 @@ export const getWriterProfile = cache(async () => {
     return null;
   }
   return data as WriterProfile | null;
-});
+}

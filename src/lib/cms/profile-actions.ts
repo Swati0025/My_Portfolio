@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "./auth";
 import { isAllowedMediaUrl } from "./media-validation";
@@ -26,6 +26,7 @@ export async function saveProfile(formData: FormData) {
     social_links: { instagram, substack },
   }, { onConflict: "id" });
   if (error) redirect(`/admin/settings?error=${encodeURIComponent(error.message)}`);
+  updateTag("writer-profile");
   revalidatePath("/");
   revalidatePath("/admin/settings");
   redirect("/admin/settings?saved=1");

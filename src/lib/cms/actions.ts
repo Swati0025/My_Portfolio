@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "./auth";
 import { isAllowedMediaUrl, validateContentImages } from "./media-validation";
@@ -63,6 +63,7 @@ export async function saveContent(formData: FormData) {
   }
 
   const kind = data.type as ContentType;
+  updateTag("published-content");
   revalidatePath("/");
   revalidatePath(`/${contentCollectionPath(kind)}`);
   revalidatePath(contentPath(kind, data.slug));
@@ -79,6 +80,7 @@ export async function deleteContent(formData: FormData) {
   const { error } = await supabase.from("content_items").delete().eq("id", id);
   if (error) redirect(`/admin/${type}?error=${encodeURIComponent(error.message)}`);
 
+  updateTag("published-content");
   revalidatePath("/");
   revalidatePath(`/${contentCollectionPath(type)}`);
   if (item?.slug) revalidatePath(contentPath(type, item.slug));
