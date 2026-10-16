@@ -8,8 +8,12 @@ export async function AboutSection() {
   return (
     <section className="about-section content-width" id="about" aria-labelledby="about-title">
       <Reveal as="figure" className="about-art">
-        <Image alt={profile?.profile_image ? `${profile.display_name}, writer` : "A cozy reading nook with bookshelves, an armchair, and warm afternoon light"} className="about-image" height={408} sizes="(max-width: 760px) 88vw, 34vw" src={profile?.profile_image || "/images/reading-nook.png"} unoptimized={Boolean(profile?.profile_image)} width={480} />
-        <figcaption>Where the kettle is warm and the stories begin.</figcaption>
+        <div className="about-photo-wrap">
+          <div className="about-photo-float">
+            <Image alt="Swati smiling in a blue dress on a garden bench" className="about-image" height={408} sizes="(max-width: 760px) 88vw, 34vw" src="/images/swati-about.png" width={480} />
+          </div>
+        </div>
+        <figcaption>A little joy, caught between stories.</figcaption>
       </Reveal>
       <Reveal className="about-copy">
         <p className="eyebrow">A little about me</p>
