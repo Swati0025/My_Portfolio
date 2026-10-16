@@ -19,9 +19,17 @@ export function HeroSection() {
       </div>
       <figure className="hero-art">
         <div className="hero-image-wrap">
-          <Image alt="A woman seated at a rooftop cafe table with a book and glasses" className="hero-image" fill priority sizes="(max-width: 760px) 90vw, 38vw" src="/images/swati-hero.jpeg" />
-          <span className="hero-sparkle" aria-hidden="true"><Sparkles /></span>
-          <div className="chapter-note"><BookOpen aria-hidden="true" /><span><small>Always between pages</small><strong>One more chapter...</strong></span></div>
+          <div className="hero-photo-frame">
+            <div className="hero-image-enter">
+              <Image alt="A woman seated at a rooftop cafe table with a book and glasses" className="hero-image" fill priority sizes="(max-width: 760px) 90vw, 38vw" src="/images/swati-hero.jpeg" />
+            </div>
+          </div>
+          <span className="hero-sparkle-float" aria-hidden="true"><span className="hero-sparkle"><span className="hero-sparkle-twinkle"><Sparkles /></span></span></span>
+          <div className="chapter-note-float">
+            <div className="chapter-note-enter">
+              <div className="chapter-note"><BookOpen aria-hidden="true" /><span><small>Always between pages</small><strong>One more chapter...</strong></span></div>
+            </div>
+          </div>
         </div>
         <figcaption>A quiet moment, somewhere between pages.</figcaption>
       </figure>
