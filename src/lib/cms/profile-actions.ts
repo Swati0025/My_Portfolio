@@ -12,6 +12,7 @@ export async function saveProfile(formData: FormData) {
   const profileImage = String(formData.get("profile_image") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const instagram = String(formData.get("instagram") ?? "").trim();
+  const linkedin = String(formData.get("linkedin") ?? "").trim();
   const substack = String(formData.get("substack") ?? "").trim();
   if (!displayName || displayName.length > 100) redirect("/admin/settings?error=Name%20is%20required%20and%20must%20be%20under%20100%20characters");
   if (biography.length > 3000) redirect("/admin/settings?error=Biography%20must%20be%20under%203000%20characters");
@@ -23,7 +24,7 @@ export async function saveProfile(formData: FormData) {
     biography,
     profile_image: profileImage || null,
     email: email || null,
-    social_links: { instagram, substack },
+    social_links: { instagram, linkedin, substack },
   }, { onConflict: "id" });
   if (error) redirect(`/admin/settings?error=${encodeURIComponent(error.message)}`);
   updateTag("writer-profile");

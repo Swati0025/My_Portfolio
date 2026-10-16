@@ -25,6 +25,42 @@ export async function getPublishedContent(type?: ContentType, limit?: number) {
   return (data ?? []) as ContentItem[];
 }
 
+export async function getPublishedContentPage(type: ContentType, requestedPage: number, pageSize = 9) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("published-content");
+  if (!hasSupabaseConfig()) return { items: [] as ContentItem[], page: 1, totalPages: 1 };
+  const { url, anonKey } = getSupabaseConfig();
+  const supabase = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+  const safePageSize = Math.max(1, Math.floor(pageSize));
+  const page = Math.min(100_000, Math.max(1, Number.isFinite(requestedPage) ? Math.floor(requestedPage) : 1));
+  const select = "id,type,title,slug,excerpt,content,cover_image,category,tags,status,created_at,updated_at,published_at";
+  const countResult = await supabase
+    .from("content_items")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "published")
+    .eq("type", type);
+  if (countResult.error) {
+    console.error("Public content count query failed:", countResult.error.message);
+    return { items: [] as ContentItem[], page: 1, totalPages: 1 };
+  }
+  const totalPages = Math.max(1, Math.ceil((countResult.count ?? 0) / safePageSize));
+  const actualPage = Math.min(page, totalPages);
+  const result = await supabase
+    .from("content_items")
+    .select(select)
+    .eq("status", "published")
+    .eq("type", type)
+    .order("published_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range((actualPage - 1) * safePageSize, actualPage * safePageSize - 1);
+  if (result.error) {
+    console.error("Public content query failed:", result.error.message);
+    return { items: [] as ContentItem[], page: actualPage, totalPages };
+  }
+  return { items: (result.data ?? []) as ContentItem[], page: actualPage, totalPages };
+}
+
 export async function getPublishedContentBySlug(type: ContentType, slug: string) {
   "use cache";
   cacheLife("hours");

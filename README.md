@@ -21,14 +21,16 @@ A Next.js App Router writer portfolio with an optional Supabase-backed publishin
    values ('00000000-0000-0000-0000-000000000000');
    ```
 
-5. Copy `.env.example` to `.env.local`. Set `NEXT_PUBLIC_SUPABASE_URL` and either `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (recommended) or `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Project Settings → API:
+5. Copy `.env.example` to `.env.local`. Set `NEXT_PUBLIC_SUPABASE_URL` and either `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (recommended) or `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Project Settings → API. Set `RESEND_API_KEY` from Resend; optionally set `RESEND_FROM_EMAIL` to a sender address verified in Resend:
 
    ```dotenv
    NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+   RESEND_API_KEY=your-resend-api-key
+   RESEND_FROM_EMAIL=Portfolio Contact <onboarding@resend.dev>
    ```
 
-   These two values are public client credentials. Do not put a service-role key in this project or expose one in browser code.
+   Keep `RESEND_API_KEY` server-only: do not prefix it with `NEXT_PUBLIC_`, commit it, or expose it in browser code. The default Resend onboarding sender only works for recipients allowed by Resend; production should use a verified sender domain. Do not put a Supabase service-role key in this project or expose one in browser code.
 6. Restart the development server after editing environment variables. Visit `/admin/login` and sign in with the authorized Supabase Auth account.
 
 The login page explains that setup is missing when these environment variables are absent. Admin routes and every write action verify allowlist membership server-side; database RLS remains the final authorization boundary. A signed-in but non-allowlisted user is signed out.
@@ -57,7 +59,7 @@ The current public homepage copy and image samples remain available before Supab
 - `/admin/story`, `/admin/poem`, `/admin/article`, `/admin/review` — search/filter content lists
 - `/admin/[type]/new` and `/admin/[type]/[id]` — Tiptap editor, draft/publish, private preview, deletion
 - `/admin/media` — upload and remove persistent images
-- `/admin/settings` — public display name, biography, profile image, email, Instagram and Substack URLs
+- `/admin/settings` — public display name, biography, profile image, email, Instagram, LinkedIn and Substack URLs
 - `/admin/preview/[id]` — authenticated preview, including drafts
 - `/stories`, `/poems`, `/articles`, `/book-reviews` and their `/:slug` pages — published content only
 
