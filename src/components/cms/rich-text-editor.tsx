@@ -11,13 +11,28 @@ type RichTextEditorProps = { initialContent?: Record<string, unknown>; fieldName
 
 const starterDocument = { type: "doc", content: [{ type: "paragraph" }] };
 
+function normalizeEditorContent(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object") return starterDocument;
+  const candidate = value as Record<string, unknown>;
+  if (candidate.type === "doc" && Array.isArray(candidate.content)) return candidate;
+  if (Array.isArray(candidate.content)) return { type: "doc", content: candidate.content as Array<Record<string, unknown>> };
+  return starterDocument;
+}
+
 export function RichTextEditor({ initialContent, fieldName = "content_json" }: RichTextEditorProps) {
+  const safeInitialContent = normalizeEditorContent(initialContent);
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, Link.configure({ openOnClick: false, autolink: true }), Image.configure({ inline: false, allowBase64: false })],
-    content: initialContent ?? starterDocument,
+    content: safeInitialContent,
     editorProps: { attributes: { class: "rich-editor-content", "aria-label": "Writing content" } },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    const nextContent = normalizeEditorContent(initialContent);
+    if (JSON.stringify(editor.getJSON()) !== JSON.stringify(nextContent)) editor.commands.setContent(nextContent, { emitUpdate: false });
+  }, [editor, initialContent]);
 
   useEffect(() => {
     if (!editor) return;
