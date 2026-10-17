@@ -8,6 +8,8 @@ import { RichTextEditor } from "./rich-text-editor";
 import { ImageFilePicker } from "./image-file-picker";
 import { contentCollectionPath, contentSingularLabel, type ContentItem, type ContentType } from "@/lib/cms/types";
 
+const emptyDocument = { type: "doc", content: [{ type: "paragraph" }] };
+
 function slugify(value: string) {
   return value.normalize("NFKD").toLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
@@ -22,22 +24,32 @@ export function ContentEditorForm({ type, item }: { type: ContentType; item?: Co
   const [slugEdited, setSlugEdited] = useState(false);
   const [title, setTitle] = useState(item?.title ?? "");
   const [coverImage, setCoverImage] = useState(item?.cover_image ?? "");
+  const [editorContent, setEditorContent] = useState<Record<string, unknown>>(() => item?.content ?? emptyDocument);
+  const [contentJson, setContentJson] = useState<string>(() => JSON.stringify(item?.content ?? emptyDocument));
   const section = contentCollectionPath(type);
 
   return (
-    <form action={saveContent} className="content-editor-form">
+    <form action={saveContent} className="content-editor-form" onSubmit={(event) => {
+      const input = event.currentTarget.querySelector<HTMLInputElement>('input[name="content_json"]');
+      const nextValue = JSON.stringify(editorContent);
+      setContentJson(nextValue);
+      if (input) input.value = nextValue;
+    }}>
       <input name="id" type="hidden" value={item?.id ?? ""} />
       <input name="type" type="hidden" value={type} />
       <input name="slug" type="hidden" value={slug} />
       <input name="cover_image" type="hidden" value={coverImage} />
-      <input defaultValue={JSON.stringify(item?.content ?? { type: "doc", content: [{ type: "paragraph" }] })} name="content_json" type="hidden" />
+      <input name="content_json" type="hidden" value={contentJson} />
       <div className="editor-page-heading"><div><Link className="admin-back-link" href={`/admin/${type}`}>Back to {section.replaceAll("-", " ")}</Link><h1>{item ? "Edit writing" : `New ${contentSingularLabel(type)}`}</h1><p>Save drafts freely. Published work appears on your public portfolio.</p></div></div>
       <div className="editor-layout">
         <div className="editor-primary">
           <label className="admin-field">Title<input autoComplete="off" maxLength={180} name="title" onChange={(event) => { setTitle(event.target.value); if (!slugEdited) setSlug(slugify(event.target.value)); }} placeholder="Give this piece a title" required value={title} /></label>
           <label className="admin-field">URL slug<div className="slug-input"><span>/</span><input onChange={(event) => { setSlug(event.target.value); setSlugEdited(true); }} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required value={slug} /></div><small>Lowercase letters, numbers, and hyphens.</small></label>
           <label className="admin-field">Excerpt<textarea maxLength={400} name="excerpt" placeholder="A short introduction for the listing page" rows={3} defaultValue={item?.excerpt ?? ""} /></label>
-          <div className="admin-field"><span>Writing</span><RichTextEditor initialContent={item?.content} /></div>
+          <div className="admin-field"><span>Writing</span><RichTextEditor key={item?.id ?? "new-content"} initialContent={editorContent} onChange={(nextContent) => {
+            setEditorContent(nextContent);
+            setContentJson(JSON.stringify(nextContent));
+          }} /></div>
         </div>
         <aside className="editor-settings">
           <h2>Publish settings</h2>

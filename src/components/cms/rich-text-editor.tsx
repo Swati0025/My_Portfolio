@@ -7,7 +7,11 @@ import Image from "@tiptap/extension-image";
 import { Bold, Heading2, ImagePlus, Italic, Link2, List, ListOrdered, Quote, Undo2, Redo2 } from "lucide-react";
 import { useEffect } from "react";
 
-type RichTextEditorProps = { initialContent?: Record<string, unknown>; fieldName?: string };
+type RichTextEditorProps = {
+  initialContent?: Record<string, unknown>;
+  fieldName?: string;
+  onChange?: (value: Record<string, unknown>) => void;
+};
 
 const starterDocument = { type: "doc", content: [{ type: "paragraph" }] };
 
@@ -19,7 +23,7 @@ function normalizeEditorContent(value: unknown): Record<string, unknown> {
   return starterDocument;
 }
 
-export function RichTextEditor({ initialContent, fieldName = "content_json" }: RichTextEditorProps) {
+export function RichTextEditor({ initialContent, fieldName = "content_json", onChange }: RichTextEditorProps) {
   const safeInitialContent = normalizeEditorContent(initialContent);
   const editor = useEditor({
     immediatelyRender: false,
@@ -38,11 +42,15 @@ export function RichTextEditor({ initialContent, fieldName = "content_json" }: R
     if (!editor) return;
     const input = document.querySelector<HTMLInputElement>(`input[name="${fieldName}"]`);
     if (!input) return;
-    const sync = () => { input.value = JSON.stringify(editor.getJSON()); };
+    const sync = () => {
+      const nextValue = editor.getJSON();
+      input.value = JSON.stringify(nextValue);
+      onChange?.(nextValue);
+    };
     sync();
     editor.on("update", sync);
     return () => { editor.off("update", sync); };
-  }, [editor, fieldName]);
+  }, [editor, fieldName, onChange]);
 
   if (!editor) return <div aria-busy="true" className="rich-editor-loading">Preparing editor…</div>;
 
