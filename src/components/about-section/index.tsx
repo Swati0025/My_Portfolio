@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/scroll-reveal";
+import { AboutPhotoDust } from "@/components/about-section/photo-dust";
 import { getWriterProfile } from "@/lib/cms/data";
 
 export async function AboutSection() {
@@ -10,8 +11,12 @@ export async function AboutSection() {
       <Reveal as="figure" className="about-art">
         <div className="about-photo-wrap">
           <div className="about-photo-float">
-            <Image alt="Swati smiling in a blue dress on a garden bench" className="about-image" height={408} sizes="(max-width: 760px) 88vw, 34vw" src="/images/swati-about.png" width={480} />
+            <div className="about-photo-container">
+              <Image alt="Swati smiling in a blue dress on a garden bench" className="about-image" height={408} sizes="(max-width: 760px) 88vw, 34vw" src="/images/swati-about.png" width={480} />
+              <div aria-hidden="true" className="about-photo-sweep" />
+            </div>
           </div>
+          <AboutPhotoDust />
         </div>
         <figcaption>A little joy, caught between stories.</figcaption>
       </Reveal>
