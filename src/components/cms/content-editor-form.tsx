@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveContent, deleteContent } from "@/lib/cms/actions";
 import { RichTextEditor } from "./rich-text-editor";
@@ -20,7 +20,7 @@ function SaveActions({ published, pending }: { published: boolean; pending: bool
 
 export function ContentEditorForm({ type, item }: { type: ContentType; item?: ContentItem }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [saving, setSaving] = useState(false);
   const [slug, setSlug] = useState(item?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(false);
   const [title, setTitle] = useState(item?.title ?? "");
@@ -39,9 +39,11 @@ export function ContentEditorForm({ type, item }: { type: ContentType; item?: Co
       const formData = new FormData(event.currentTarget);
       const submitter = (event.nativeEvent as SubmitEvent).submitter;
       if (submitter instanceof HTMLButtonElement) formData.set("status", submitter.value);
-      startTransition(async () => {
-        const destination = await saveContent(formData);
+      setSaving(true);
+      void saveContent(formData).then((destination) => {
         router.push(destination);
+      }).finally(() => {
+        setSaving(false);
       });
     }}>
       <input name="id" type="hidden" value={item?.id ?? ""} />
@@ -68,7 +70,7 @@ export function ContentEditorForm({ type, item }: { type: ContentType; item?: Co
           <label className="admin-field">Tags<input name="tags" placeholder="Separate tags with commas" defaultValue={item?.tags.join(", ") ?? ""} /></label>
           {item?.published_at && <p className="admin-date">Published {new Date(item.published_at).toLocaleDateString()}</p>}
           {item && <Link className="admin-secondary-button" href={`/admin/preview/${item.id}`}>Preview</Link>}
-          <SaveActions pending={pending} published={item?.status === "published"} />
+          <SaveActions pending={saving} published={item?.status === "published"} />
         </aside>
       </div>
     </form>
