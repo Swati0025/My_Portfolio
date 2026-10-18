@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { saveContent, deleteContent } from "@/lib/cms/actions";
 import { RichTextEditor } from "./rich-text-editor";
 import { ImageFilePicker } from "./image-file-picker";
@@ -14,12 +14,13 @@ function slugify(value: string) {
   return value.normalize("NFKD").toLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-function SaveActions({ published }: { published: boolean }) {
-  const { pending } = useFormStatus();
+function SaveActions({ published, pending }: { published: boolean; pending: boolean }) {
   return <><button className="admin-primary-button" disabled={pending} name="status" type="submit" value="draft">{pending ? "Saving…" : "Save draft"}</button><button className="admin-publish-button" disabled={pending} name="status" type="submit" value="published">{pending ? "Saving…" : published ? "Save & publish" : "Publish"}</button></>;
 }
 
 export function ContentEditorForm({ type, item }: { type: ContentType; item?: ContentItem }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const [slug, setSlug] = useState(item?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(false);
   const [title, setTitle] = useState(item?.title ?? "");
@@ -29,11 +30,19 @@ export function ContentEditorForm({ type, item }: { type: ContentType; item?: Co
   const section = contentCollectionPath(type);
 
   return (
-    <form action={saveContent} className="content-editor-form" onSubmit={(event) => {
+    <form className="content-editor-form" onSubmit={(event) => {
+      event.preventDefault();
       const input = event.currentTarget.querySelector<HTMLInputElement>('input[name="content_json"]');
       const nextValue = JSON.stringify(editorContent);
       setContentJson(nextValue);
       if (input) input.value = nextValue;
+      const formData = new FormData(event.currentTarget);
+      const submitter = (event.nativeEvent as SubmitEvent).submitter;
+      if (submitter instanceof HTMLButtonElement) formData.set("status", submitter.value);
+      startTransition(async () => {
+        const destination = await saveContent(formData);
+        router.push(destination);
+      });
     }}>
       <input name="id" type="hidden" value={item?.id ?? ""} />
       <input name="type" type="hidden" value={type} />
@@ -59,7 +68,7 @@ export function ContentEditorForm({ type, item }: { type: ContentType; item?: Co
           <label className="admin-field">Tags<input name="tags" placeholder="Separate tags with commas" defaultValue={item?.tags.join(", ") ?? ""} /></label>
           {item?.published_at && <p className="admin-date">Published {new Date(item.published_at).toLocaleDateString()}</p>}
           {item && <Link className="admin-secondary-button" href={`/admin/preview/${item.id}`}>Preview</Link>}
-          <SaveActions published={item?.status === "published"} />
+          <SaveActions pending={pending} published={item?.status === "published"} />
         </aside>
       </div>
     </form>

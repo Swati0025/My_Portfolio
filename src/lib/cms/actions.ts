@@ -67,7 +67,7 @@ export async function saveContent(formData: FormData) {
   revalidatePath("/");
   revalidatePath(`/${contentCollectionPath(kind)}`);
   revalidatePath(contentPath(kind, data.slug));
-  redirect(`/admin/${content.type}?saved=1`);
+  return `/admin/${content.type}?saved=1`;
 }
 
 export async function deleteContent(formData: FormData) {
