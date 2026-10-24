@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { BookOpen, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const slides = [
   {
@@ -46,7 +46,10 @@ export function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
   const slide = slides[currentIndex];
+  const isSlideLoaded = loadedSrc === slide.src;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -66,6 +69,12 @@ export function HeroCarousel() {
     return () => window.clearInterval(intervalId);
   }, [isHovered, prefersReducedMotion]);
 
+  useEffect(() => {
+    if (imageRef.current?.complete && imageRef.current.naturalWidth > 0) {
+      setLoadedSrc(slide.src);
+    }
+  }, [slide.src]);
+
   return (
     <>
       <div
@@ -73,16 +82,21 @@ export function HeroCarousel() {
         onPointerEnter={() => setIsHovered(true)}
         onPointerLeave={() => setIsHovered(false)}
       >
-        <div className="hero-photo-frame">
-          <div className="hero-image-enter">
+        <div className={`hero-photo-frame${isSlideLoaded ? " hero-photo-frame-loaded" : ""}`}>
+          <div
+            className={`hero-image-enter${isSlideLoaded ? "" : " hero-image-enter-pending"}`}
+            key={slide.src}
+          >
             <Image
               key={slide.src}
+              ref={imageRef}
               alt={slide.alt}
-              className="hero-image"
+              className={`hero-image${isSlideLoaded ? " hero-image-loaded" : ""}`}
               fill
-              priority={currentIndex === 0}
+              loading="eager"
               sizes="(max-width: 760px) 90vw, 38vw"
               src={slide.src}
+              onLoad={() => setLoadedSrc(slide.src)}
               style={{ objectPosition: slide.objectPosition }}
             />
           </div>
