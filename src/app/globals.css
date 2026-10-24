@@ -115,6 +115,15 @@ h2 { margin-bottom: 0; font-size: clamp(34px, 3.1vw, 44px); line-height: 1.18; }
 .hero-image-wrap:hover .hero-sparkle-twinkle { transform: rotate(90deg); }
 .hero-image-wrap:hover .hero-sparkle-twinkle svg { filter: drop-shadow(0 0 5px #fff9c7); }
 .hero-image-wrap:hover .chapter-note { transform: translateY(-4px); box-shadow: 0 17px 36px #383b2821; }
+.hero-carousel-controls { display: flex; min-height: 34px; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+.hero-carousel-controls > button, .hero-carousel-indicators button { display: grid; flex: 0 0 auto; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--olive-dark); cursor: pointer; }
+.hero-carousel-controls > button { width: 32px; height: 32px; }
+.hero-carousel-controls > button:hover { background: #e9ecdf; }
+.hero-carousel-controls > button svg { width: 17px; height: 17px; stroke-width: 1.6; }
+.hero-carousel-indicators { display: flex; align-items: center; gap: 7px; }
+.hero-carousel-indicators button { width: 8px; height: 8px; padding: 0; background: #c9cbbf; transition: width .2s ease, background-color .2s ease; }
+.hero-carousel-indicators button.is-active { width: 19px; border-radius: 999px; background: var(--olive); }
+.hero-carousel-controls button:focus-visible { outline-offset: 2px; }
 .hero-art figcaption, .about-art figcaption { margin-top: 14px; color: #8a8c81; font-family: var(--font-serif), Georgia, serif; font-size: 12px; font-style: italic; text-align: center; }
 .hero-art figcaption { animation: enter-up .6s cubic-bezier(.2,.7,.2,1) 1.48s both; }
 

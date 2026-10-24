@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const slides = [
@@ -103,6 +103,44 @@ export function HeroCarousel() {
             </div>
           </div>
         </div>
+      </div>
+      <div
+        className="hero-carousel-controls"
+        onPointerEnter={() => setIsHovered(true)}
+        onPointerLeave={() => setIsHovered(false)}
+        onFocus={() => setIsHovered(true)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setIsHovered(false);
+        }}
+        role="group"
+        aria-label="Hero image carousel controls"
+      >
+          <button
+            aria-label="Show previous image"
+            onClick={() => setCurrentIndex((index) => (index - 1 + slides.length) % slides.length)}
+            type="button"
+          >
+            <ChevronLeft aria-hidden="true" />
+          </button>
+          <div className="hero-carousel-indicators">
+            {slides.map((item, index) => (
+              <button
+                aria-label={`Show image ${index + 1}: ${item.card}`}
+                aria-pressed={currentIndex === index}
+                className={currentIndex === index ? "is-active" : ""}
+                key={item.src}
+                onClick={() => setCurrentIndex(index)}
+                type="button"
+              />
+            ))}
+          </div>
+          <button
+            aria-label="Show next image"
+            onClick={() => setCurrentIndex((index) => (index + 1) % slides.length)}
+            type="button"
+          >
+            <ChevronRight aria-hidden="true" />
+          </button>
       </div>
       <figcaption>{slide.caption}</figcaption>
     </>
