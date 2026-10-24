@@ -33,6 +33,13 @@ const slides = [
     caption: "Stories hide in ordinary places.",
     objectPosition: "center 38%",
   },
+  {
+    src: "/hero/look-closer-bookshop.jpeg",
+    alt: "A reader holding a book among colorful bookstore shelves",
+    card: "Look closer",
+    caption: "Behind every book, a reader wondering what comes next.",
+    objectPosition: "center 56%",
+  },
 ];
 
 export function HeroCarousel() {
